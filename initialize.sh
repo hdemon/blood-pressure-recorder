@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 aws lambda create-function \
     --function-name blood-pressure-recorder \
@@ -12,4 +12,19 @@ API_ID=$(aws apigateway create-rest-api \
     --region ap-northeast-1 \
 | jq -r ".id")
 
-ID=$(aws apigateway get-resources --rest-api-id $API_ID --region ap-northeast-1 | jq -r ".items[] | .id")
+echo "API ID: "$API_ID
+
+# you can get REST API ID by `aws apigateway get-rest-apis`.
+ROOT_RESOURCE_ID=$(aws apigateway get-resources --rest-api-id $API_ID --region ap-northeast-1 | jq -r ".items[] | .id")
+echo "root resource ID: "$ROOT_RESOURCE_ID
+
+RESOURCE_ID=aws apigateway create-resource --rest-api-id $API_ID \
+    --region ap-northeast-1
+    --parent-id $ROOT_RESOURCE_ID \
+    --path-part record
+
+aws apigateway put-method \
+    --rest-api-id $API_ID \
+    --resource-id resource-id \
+    --http-method POST \
+    --authorization-type NONE
