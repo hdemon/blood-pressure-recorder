@@ -18,10 +18,11 @@ echo "API ID: "$API_ID
 ROOT_RESOURCE_ID=$(aws apigateway get-resources --rest-api-id $API_ID --region ap-northeast-1 | jq -r ".items[] | .id")
 echo "root resource ID: "$ROOT_RESOURCE_ID
 
-RESOURCE_ID=aws apigateway create-resource --rest-api-id $API_ID \
+RESOURCE_ID=$(RESOURCE_ID=aws apigateway create-resource --rest-api-id $API_ID \
     --region ap-northeast-1
     --parent-id $ROOT_RESOURCE_ID \
-    --path-part record
+    --path-part record \
+| jq -r ".id")
 
 aws apigateway put-method \
     --rest-api-id $API_ID \
